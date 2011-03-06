@@ -1,0 +1,5 @@
+name: XSigns
+
+main: orangenpresse.xsigns.XSigns
+
+version: 0.1
