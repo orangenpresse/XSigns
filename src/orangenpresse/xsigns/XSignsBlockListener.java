@@ -27,11 +27,11 @@ public class XSignsBlockListener extends BlockListener {
     	//Check blocks arround
     	for(BlockFace face : BlockFace.values())
     	{
-    		checkCurrent(event.getBlock().getFace(face),event.getNewCurrent());
+    		checkCurrent(event.getBlock().getFace(face),event.getBlock().getFace(face).isBlockIndirectlyPowered());
     	}
     }
     
-    private void checkCurrent(Block block, int current) {
+    private void checkCurrent(Block block, boolean current) {
     	if(block.getType() == Material.SIGN_POST || block.getType() == Material.SIGN || block.getType() == Material.WALL_SIGN) {
     		//Cast block into a sign
     		Sign sign = (Sign)block.getState();
@@ -42,7 +42,7 @@ public class XSignsBlockListener extends BlockListener {
     			return;
     		
     		//write the new lines
-    		if(current != 0)
+    		if(current == true)
     		{
     			for(int i = 0; i < lines[1].length; i++)
     			{
