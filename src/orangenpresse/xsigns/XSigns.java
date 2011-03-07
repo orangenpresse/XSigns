@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -48,14 +49,14 @@ public class XSigns extends JavaPlugin {
         }
 
 		//load Signs
-        System.out.println( this.name + " info: " + loadSigns() + " XSigns loaded" );
+        getServer().getLogger().info( this.name + " info: " + loadSigns() + " XSigns loaded" );
 			
         //write plugin info
-        System.out.println( this.name + " version " + pdfFile.getVersion() + " is enabled!" );
+        getServer().getLogger().info( this.name + " version " + pdfFile.getVersion() + " is enabled!" );
     }
     
     public void onDisable() {
-        System.out.println("XTuringSigns disabled");
+        getServer().getLogger().info(this.name + " disabled");
     }
     
     public void addSign(Block sign, String[][] lines) {
@@ -87,7 +88,7 @@ public class XSigns extends JavaPlugin {
         try {
 			Class.forName("flexjson.JSONSerializer");
 		} catch (ClassNotFoundException e1) {
-			System.out.println(this.name + " error: flexjson not found!");
+			getServer().getLogger().info(this.name + " error: flexjson not found!");
 			e1.printStackTrace();
 			return false;
 		}
@@ -98,10 +99,10 @@ public class XSigns extends JavaPlugin {
         if(!pluginDir.exists())
         {
         	if(pluginDir.mkdir()) {
-        		System.out.println(this.name + " info: create "+this.name+" plugin folder");
+        		getServer().getLogger().info(this.name + " info: create "+this.name+" plugin folder");
         	}
         	else {
-        		System.out.println(this.name +" error: can't create "+this.name+" plugin folder, Signs will not be saved!");
+        		getServer().getLogger().info(this.name +" error: can't create "+this.name+" plugin folder, Signs will not be saved!");
         		return false;
         	}
         }
@@ -111,9 +112,9 @@ public class XSigns extends JavaPlugin {
 			try {
 				saveFile.createNewFile();
 				
-				System.out.println(this.name + " info: save file created");
+				getServer().getLogger().info(this.name + " info: save file created");
 			} catch (IOException e) {
-				System.out.println(this.name +" error: can't create "+this.name+" save file, Signs will not be saved!");
+				getServer().getLogger().info(this.name +" error: can't create "+this.name+" save file, Signs will not be saved!");
 				e.printStackTrace();
 				return false;
 			}
@@ -131,12 +132,13 @@ public class XSigns extends JavaPlugin {
 	    	for(Block block : signs.keySet())
 	    	{
 	    		XSign sign = new XSign(	block.getLocation().getWorld().getName(), 
+	    								block.getLocation().getWorld().getEnvironment().toString(),
 	    								block.getLocation().getBlockX(), 
 	    								block.getLocation().getBlockY(), 
 	    								block.getLocation().getBlockZ(), 
 	    								signs.get(block)
 	    								);
-	    		
+
 	    		JSONSerializer seri = new JSONSerializer();
 	    		
 	    		//write Signs to file
@@ -146,16 +148,18 @@ public class XSigns extends JavaPlugin {
 	    	writer.close();
 	    	
 		} catch (IOException e) {
-			System.out.println(this.name + " error: can't write save data");
+			getServer().getLogger().info(this.name + " error: can't write save data");
 			e.printStackTrace();
 		}
     }
     
     private int loadSigns() {
     	int count = 0;
-    	
+		
     	try {
 			BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+			Block block = null;
+			World world = null;
 			
 			//read Data
 			while(reader.ready())
@@ -163,29 +167,38 @@ public class XSigns extends JavaPlugin {
 				//Deserialize Sign
 				XSign sign = new JSONDeserializer<XSign>().deserialize(reader.readLine());
 				
+				if(sign.getEnvironment() != null)
+					world = getServer().createWorld(sign.getWorld(),World.Environment.valueOf(sign.getEnvironment()));
+				else
+					world = getServer().getWorld(sign.getWorld());
+					
 				//get Block
-				Block block = getServer().getWorld(sign.getWorld()).getBlockAt(sign.getX(), sign.getY(), sign.getZ());
+				if(world != null)
+				{
+					block = world.getBlockAt(sign.getX(), sign.getY(), sign.getZ());
+				}
+				else
+				{
+					break;
+				}
 				
 				//put sign in array if it a sign
-				if(block.getType() == Material.SIGN_POST || block.getType() == Material.SIGN || block.getType() == Material.WALL_SIGN) {
+				if(block != null && block.getType() == Material.SIGN_POST || block.getType() == Material.SIGN || block.getType() == Material.WALL_SIGN) {
 					signs.put(block, sign.getText());
 					count++;
 				}
 				else
 				{
-					System.out.println(this.name + " info: non existend XSign found(world renamed or server crashed?). It will be deleted after building a new XSign one");
+					getServer().getLogger().info(this.name + " info: non existend XSign found(world renamed or server crashed?). It will be deleted after building a new XSign one");
 				}
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println(this.name + " error: can't read save data");
+			getServer().getLogger().info(this.name + " error: can't read save data");
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println(this.name + " error: can't read save data");
+			getServer().getLogger().info(this.name + " error: can't read save data");
 			e.printStackTrace();
 		}
-		
-		//Save Signs (this will be delete not loaded signs)
-		//saveSigns();
 		
 		return count;
     }

@@ -2,13 +2,15 @@ package orangenpresse.xsigns;
 
 public class XSign {
 	private String world;
+	private String environment;
 	private int x;
 	private int y;
 	private int z;
 	
-	public XSign(String world, int x, int y, int z, String[][] text) {
+	public XSign(String world, String environment, int x, int y, int z, String[][] text) {
 		super();
 		this.world = world;
+		this.environment = environment;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -25,6 +27,12 @@ public class XSign {
 	}
 	public void setWorld(String world) {
 		this.world = world;
+	}
+	public String getEnvironment() {
+		return environment;
+	}
+	public void setEnvironment(String environment) {
+		this.environment = environment;
 	}
 	public int getX() {
 		return x;
