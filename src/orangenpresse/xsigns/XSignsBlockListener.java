@@ -18,6 +18,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 public class XSignsBlockListener extends BlockListener {
     private final XSigns plugin;
     private Player player;
+    private final String emptyPhrase = "build a new Sign";
     
     public XSignsBlockListener(final XSigns plugin) {
         this.plugin = plugin;
@@ -68,22 +69,32 @@ public class XSignsBlockListener extends BlockListener {
     	this.player = event.getPlayer();
     	if(plugin.isXSign(event.getBlock()))
     	{
-    		plugin.removeSign(event.getBlock());
-    		this.player.sendMessage("XSign destroyed");
+    	   	if(plugin.getString(event.getBlock())[1][0].equals(emptyPhrase))
+    	   	{
+    	   		this.player.sendMessage("Please build the other part of the XSign");
+    	   	}
+    	   	else
+    	   	{
+    	   		plugin.removeSign(event.getBlock());
+    			this.player.sendMessage("XSign destroyed");
+    	   	}
     	}
     }
     
     public void onSignChange(SignChangeEvent event) {
-    	boolean isRedstoneSign = false;
+    	XSignType signType = XSignType.Sign;
+    	this.player = event.getPlayer();
     	String[] lines = event.getLines();
     	String[][] newLines = new String[2][4];
-	
+    	
     	for(int i = 0; i < lines.length; i++)
     	{
     		//is the new sign a redstoneSign?
     		if(lines[i].matches("^<.*\\|.*>$"))
     		{
-    			isRedstoneSign = true;
+    			//set to XSign
+    			signType = XSignType.XSign;
+    			
     			//split the String into the 2 Parts
     			String[] splitString = lines[i].replaceAll("<|>","").split("\\|",2);
     			
@@ -91,16 +102,58 @@ public class XSignsBlockListener extends BlockListener {
         		newLines[0][i] = splitString[0];
         		newLines[1][i] = splitString[1];
     		}
+    		else if(lines[i].matches("^<.*\\|$"))
+    		{
+    			signType = XSignType.XSignFalse;
+    			
+    			//replace the commandchars
+    			String replacedString = lines[i].replaceAll("<|\\|", "");
+    			
+    			//save Lines
+    			newLines[0][i] = replacedString;
+    			newLines[1][i] = emptyPhrase;
+    		}
+    		else if(lines[i].matches("^\\|.*>$"))
+    		{
+    			signType = XSignType.XSignTrue;
+    			
+    			//replace the commandchars
+    			String replacedString = lines[i].replaceAll(">|\\|", "");
+    			
+    			//Get the lines out of the first Sign
+    			String[][] oldString = plugin.getString(event.getBlock());
+    			
+    			if(oldString != null)
+    			{
+    				//save Lines
+    				newLines[0][i] = oldString[0][i];
+    				newLines[1][i] = replacedString;
+    			}
+    			else
+    			{
+    				signType = XSignType.Sign;
+    				this.player.sendMessage("No half XSign found");
+    			}
+    		}
     		else
     		{
     			newLines[0][i] = newLines[1][i] = lines[i];
     		}
     	}
     	
-    	this.player = event.getPlayer();
-    	if(isRedstoneSign)
+    	if(signType == XSignType.XSign)
     	{
     		this.player.sendMessage("XSign created");
+    		plugin.addSign(event.getBlock(), newLines);
+    	}
+    	else if(signType == XSignType.XSignFalse)
+    	{
+    		this.player.sendMessage("half XSign created");
+    		plugin.addSign(event.getBlock(), newLines);
+    	}
+    	else if(signType == XSignType.XSignTrue)
+    	{
+    		this.player.sendMessage("Big XSign created");
     		plugin.addSign(event.getBlock(), newLines);
     	}
     	
