@@ -189,7 +189,7 @@ public class XSigns extends JavaPlugin {
 				}
 				else
 				{
-					getServer().getLogger().info(this.name + " info: non existend XSign found(world renamed or server crashed?). It will be deleted after building a new XSign one");
+					getServer().getLogger().info(this.name + " info: non existend XSign or unfinished Big XSign found. It will be deleted after building a new XSign");
 				}
 			}
 		} catch (FileNotFoundException e) {

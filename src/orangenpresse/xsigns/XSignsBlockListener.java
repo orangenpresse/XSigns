@@ -90,7 +90,7 @@ public class XSignsBlockListener extends BlockListener {
     	for(int i = 0; i < lines.length; i++)
     	{
     		//is the new sign a redstoneSign?
-    		if(lines[i].matches("^<.*\\|.*>$"))
+    		if(lines[i].matches("^<.*\\|.*>$") && signType != XSignType.XSignFalse && signType != XSignType.XSignTrue)
     		{
     			//set to XSign
     			signType = XSignType.XSign;
@@ -111,7 +111,7 @@ public class XSignsBlockListener extends BlockListener {
     			
     			//save Lines
     			newLines[0][i] = replacedString;
-    			newLines[1][i] = emptyPhrase;
+    			newLines[1][0] = emptyPhrase;
     		}
     		else if(lines[i].matches("^\\|.*>$"))
     		{
