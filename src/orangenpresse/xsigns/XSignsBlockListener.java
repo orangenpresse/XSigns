@@ -29,6 +29,11 @@ public class XSignsBlockListener extends BlockListener {
     	for(BlockFace face : BlockFace.values())
     	{
     		checkCurrent(event.getBlock().getFace(face),event.getBlock().getFace(face).isBlockIndirectlyPowered());
+
+    		//check current from behind
+    		if(	event.getBlock().getType() == Material.REDSTONE_WIRE && (face == BlockFace.EAST || face == BlockFace.WEST || face == BlockFace.SOUTH || face == BlockFace.NORTH)) {
+    			checkCurrent(event.getBlock().getFace(face).getFace(face),event.getBlock().getFace(face).isBlockIndirectlyPowered());
+    		}
     	}
     }
     
