@@ -192,6 +192,8 @@ public class XSigns extends JavaPlugin {
 					getServer().getLogger().info(this.name + " info: non existend XSign or unfinished Big XSign found. It will be deleted after building a new XSign");
 				}
 			}
+			
+			reader.close();
 		} catch (FileNotFoundException e) {
 			getServer().getLogger().info(this.name + " error: can't read save data");
 			e.printStackTrace();
