@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Benedict Burckhart/Dropbox/Minecraft/Bukkit/bukkit-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Benedict Burckhart/Dropbox/Minecraft/Bukkit/flexjson-2.1/flexjson-2.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Benedict Burckhart/Dropbox/Minecraft/Bukkit/craftbukkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Benedict Burckhart/Dropbox/Minecraft/Bukkit/craftbukkit-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

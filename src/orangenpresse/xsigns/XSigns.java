@@ -56,19 +56,14 @@ public class XSigns extends JavaPlugin {
     }
     
     public void onDisable() {
+    	//save signs before disable
+    	if(signs.size() != 0)
+    		this.saveSigns();
+
         getServer().getLogger().info(this.name + " disabled");
     }
     
-    public void addSign(Block block, String[][] lines) {
-    	//Create XSign
-    	XSign sign = new XSign(	block.getLocation().getWorld().getName(), 
-				block.getLocation().getWorld().getEnvironment().toString(),
-				block.getLocation().getBlockX(), 
-				block.getLocation().getBlockY(), 
-				block.getLocation().getBlockZ(), 
-				lines
-				);
-    	
+    public void addSign(Block block, XSign sign) {
     	//add Sign to hashmap
     	signs.put(block, sign);
     	
@@ -84,12 +79,11 @@ public class XSigns extends JavaPlugin {
     	saveSigns();
     }
     
-    public String[][] getString(Block sign) {
-    	if(!signs.containsKey(sign)) {
+    public XSign getXSign(Block block) {
+    	if(!signs.containsKey(block)) {
     		return null;
     	}
-    	String[][] temp = signs.get(sign).getText();
-    	return temp;
+    	return signs.get(block);
     }
     
     private boolean checkFiles()

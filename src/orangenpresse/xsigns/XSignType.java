@@ -3,6 +3,8 @@ package orangenpresse.xsigns;
 public enum XSignType {
 	Sign,
 	XSign,
-	XSignFalse,
-	XSignTrue,
+	HalfXSign,
+	BigXSign,
+	TriggerXSign,
+	XSignCounter
 }
