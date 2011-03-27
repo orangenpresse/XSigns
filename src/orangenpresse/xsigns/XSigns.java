@@ -28,7 +28,7 @@ public class XSigns extends JavaPlugin {
 	private String name;
 	private File saveFile;
     private final XSignsBlockListener blockListener = new XSignsBlockListener(this);
-    private final HashMap<Block, String[][]> signs = new HashMap<Block, String[][]>();
+    private final HashMap<Block, XSign> signs = new HashMap<Block, XSign>();
     
     public void onEnable() {
         // Register our events
@@ -59,9 +59,19 @@ public class XSigns extends JavaPlugin {
         getServer().getLogger().info(this.name + " disabled");
     }
     
-    public void addSign(Block sign, String[][] lines) {
+    public void addSign(Block block, String[][] lines) {
+    	//Create XSign
+    	XSign sign = new XSign(	block.getLocation().getWorld().getName(), 
+				block.getLocation().getWorld().getEnvironment().toString(),
+				block.getLocation().getBlockX(), 
+				block.getLocation().getBlockY(), 
+				block.getLocation().getBlockZ(), 
+				lines
+				);
+    	
     	//add Sign to hashmap
-    	signs.put(sign, lines);
+    	signs.put(block, sign);
+    	
     	saveSigns();
     }
     
@@ -78,7 +88,7 @@ public class XSigns extends JavaPlugin {
     	if(!signs.containsKey(sign)) {
     		return null;
     	}
-    	String[][] temp = signs.get(sign);
+    	String[][] temp = signs.get(sign).getText();
     	return temp;
     }
     
@@ -129,16 +139,8 @@ public class XSigns extends JavaPlugin {
 			FileWriter writer = new FileWriter(saveFile);
 			
 			//write data
-	    	for(Block block : signs.keySet())
+	    	for(XSign sign : this.signs.values())
 	    	{
-	    		XSign sign = new XSign(	block.getLocation().getWorld().getName(), 
-	    								block.getLocation().getWorld().getEnvironment().toString(),
-	    								block.getLocation().getBlockX(), 
-	    								block.getLocation().getBlockY(), 
-	    								block.getLocation().getBlockZ(), 
-	    								signs.get(block)
-	    								);
-
 	    		JSONSerializer seri = new JSONSerializer();
 	    		
 	    		//write Signs to file
@@ -184,7 +186,7 @@ public class XSigns extends JavaPlugin {
 				
 				//put sign in array if it a sign
 				if(block != null && block.getType() == Material.SIGN_POST || block.getType() == Material.SIGN || block.getType() == Material.WALL_SIGN) {
-					signs.put(block, sign.getText());
+					signs.put(block, sign);
 					count++;
 				}
 				else
