@@ -57,7 +57,7 @@ public class XSignsBlockListener extends BlockListener {
     	}
 
     	//Update the Sign
-    	((CraftWorld)block.getWorld()).getHandle().g(block.getX(),block.getY(),block.getZ());
+    	((CraftWorld)block.getWorld()).getHandle().notify(block.getX(),block.getY(),block.getZ());
     }
     
     public void onBlockBreak(BlockBreakEvent event) {
