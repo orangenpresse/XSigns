@@ -15,7 +15,6 @@ import org.bukkit.event.block.BlockRedstoneEvent;
  * XTuringSigns block listener
  * @author Orangenpresse
  */
-
 public class XSignsBlockListener extends BlockListener {
     private final XSigns plugin;
     private Player player;
@@ -28,11 +27,11 @@ public class XSignsBlockListener extends BlockListener {
     	//Check blocks arround
     	for(BlockFace face : BlockFace.values())
     	{
-    		checkCurrent(event.getBlock().getRelative(face),event.getBlock().getRelative(face).isBlockIndirectlyPowered());
+    		checkCurrent(event.getBlock().getFace(face),event.getBlock().getFace(face).isBlockIndirectlyPowered());
 
     		//check current from behind
     		if(	event.getBlock().getType() == Material.REDSTONE_WIRE && (face == BlockFace.EAST || face == BlockFace.WEST || face == BlockFace.SOUTH || face == BlockFace.NORTH)) {
-    			checkCurrent(event.getBlock().getRelative(face).getRelative(face),event.getBlock().getRelative(face).isBlockIndirectlyPowered());
+    			checkCurrent(event.getBlock().getFace(face).getFace(face),event.getBlock().getFace(face).isBlockIndirectlyPowered());
     		}
     	}
     }
@@ -77,62 +76,6 @@ public class XSignsBlockListener extends BlockListener {
     	}
     }
     
-    private String[] handleXSign(XSign sign, String line) {
-    	String[] newLines = new String[2];
-    	
-    	//set to XSign
-		sign.setType(XSignType.XSign);
-		
-		//split the String into the 2 Parts
-		String[] splitString = line.replaceAll("<|>","").split("\\|",2);
-		
-		//save Lines    			
-		newLines[0] = splitString[0];
-		newLines[1] = splitString[1];
-		
-		return newLines;
-    }
-    
-	private String handleHalfXSign(XSign sign, String line) {
-		sign.setType(XSignType.HalfXSign);
-		
-		//replace the commandchars
-		String replacedString = line.replaceAll("<|\\|", "");
-		
-		//save Lines
-		return replacedString;
-    }
-
-	private String handleBigXSign(Block block, XSign sign, String line) throws XSignNotFoundException {
-		//Is there a half sign? 			
-		if(plugin.getXSign(block) != null) {
-			//get the half sign
-			sign = plugin.getXSign(block);
-			
-			//set the signtype
-			if(line.matches("^\\|.*>$"))
-				sign.setType(XSignType.BigXSign);
-			else if(line.matches("^\\|.*\\|$"))
-				sign.setType(XSignType.TriggerXSign);
-			
-			//replace the commandchars
-			String replacedString = line.replaceAll(">|\\|", "");
-			
-			//set the newLines
-			return replacedString;
-		}
-		else {
-			sign.setType(XSignType.Sign);
-			throw new XSignNotFoundException();
-		}
-	}
-	
-	private String handleCounterXSign(XSign sign, String line) {
-		sign.setType(XSignType.XSignCounter);
-		return line+":"+0;
-	}
-    
-    
     public void onSignChange(SignChangeEvent event) {
     	Block block = event.getBlock();
     	this.player = event.getPlayer();
@@ -141,34 +84,54 @@ public class XSignsBlockListener extends BlockListener {
        	XSign sign = new XSign(block);
     	
     	for(int i = 0; i < lines.length; i++) {
-    		//handle normal XSigns
+    		//is the new sign a XSign?
     		if(lines[i].matches("^<.*\\|.*>$") && sign.getType() != XSignType.HalfXSign && sign.getType() != XSignType.BigXSign) {
-    			String[] returnLines = this.handleXSign(sign, lines[i]);
+    			//set to XSign
+    			sign.setType(XSignType.XSign);
+    			
+    			//split the String into the 2 Parts
+    			String[] splitString = lines[i].replaceAll("<|>","").split("\\|",2);
     			
     			//save Lines    			
-        		newLines[0][i] = returnLines[0];
-        		newLines[1][i] = returnLines[1];
+        		newLines[0][i] = splitString[0];
+        		newLines[1][i] = splitString[1];
     		}
-    		//handle half XSigns
     		else if(lines[i].matches("^<.*\\|$")) {
+    			sign.setType(XSignType.HalfXSign);
+    			
+    			//replace the commandchars
+    			String replacedString = lines[i].replaceAll("<|\\|", "");
+    			
     			//save Lines
-    			newLines[0][i] = this.handleHalfXSign(sign, lines[i]);
+    			newLines[0][i] = replacedString;
     		}
-    		//handle big XSigns
     		else if(lines[i].matches("^\\|.*>$") || lines[i].matches("^\\|.*\\|$")) {
-				try {
-					//save Lines
-					newLines[0][i] = this.handleBigXSign(block, sign, lines[i]);
-				} catch (XSignNotFoundException e) {
-					this.player.sendMessage("No half XSign found");
-				}
+    			//Is there a half sign? 			
+    			if(plugin.getXSign(block) != null) {
+    				//get the half sign
+    				sign = plugin.getXSign(block);
+    				
+    				//set the signtype
+    				if(lines[i].matches("^\\|.*>$"))
+    					sign.setType(XSignType.BigXSign);
+    				else if(lines[i].matches("^\\|.*\\|$"))
+    					sign.setType(XSignType.TriggerXSign);
+        			
+        			//replace the commandchars
+        			String replacedString = lines[i].replaceAll(">|\\|", "");
+        			
+    				//set the newLines
+    				newLines[0][i] = replacedString;
+    			}
+    			else {
+    				sign.setType(XSignType.Sign);
+    				this.player.sendMessage("No half XSign found");
+    			}
     		}
-    		//handle countersigns
     		else if(lines[i].matches("^\\[counter\\]$")) {
     			sign.setType(XSignType.XSignCounter);
-    			newLines[0][i] = this.handleCounterXSign(sign, lines[i]);
+    			newLines[0][i] = lines[i]+":"+0;
     		}
-    		//handle normal text
     		else {
     			newLines[0][i] = newLines[1][i] = lines[i];
     		}
