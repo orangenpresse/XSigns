@@ -56,11 +56,11 @@ public class XSignsBlockListener implements Listener {
 			{
 				if(xsign.getStateLines()[i] != null)
 					sign.setLine(i, xsign.getStateLines()[i]);
+                
+                //update sign
+                sign.update();
 			}
     	}
-
-    	//Update the Sign
-    	((CraftWorld)block.getWorld()).getHandle().notify(block.getX(),block.getY(),block.getZ());
     }
     
     @EventHandler
