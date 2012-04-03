@@ -14,7 +14,7 @@ public class XSign {
 	private XSignType type = XSignType.Sign;
 	String[][] text;
 
-	//Konstruktors	
+	//Constructors	
 	public XSign(Block block) {
 		super();
 		this.world = block.getLocation().getWorld().getName();

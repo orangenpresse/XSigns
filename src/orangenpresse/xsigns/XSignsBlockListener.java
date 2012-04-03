@@ -7,16 +7,17 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
 /**
- * XTuringSigns block listener
+ * XSigns block listener
  * @author Orangenpresse
  */
 
-public class XSignsBlockListener extends BlockListener {
+public class XSignsBlockListener implements Listener {
     private final XSigns plugin;
     private Player player;
     
@@ -24,6 +25,7 @@ public class XSignsBlockListener extends BlockListener {
         this.plugin = plugin;
     }
 
+    @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event) {    	
     	//Check blocks arround
     	for(BlockFace face : BlockFace.values())
@@ -61,6 +63,7 @@ public class XSignsBlockListener extends BlockListener {
     	((CraftWorld)block.getWorld()).getHandle().notify(block.getX(),block.getY(),block.getZ());
     }
     
+    @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
     	this.player = event.getPlayer();
     	if(plugin.isXSign(event.getBlock()))
@@ -132,7 +135,7 @@ public class XSignsBlockListener extends BlockListener {
 		return line+":"+0;
 	}
     
-    
+	@EventHandler
     public void onSignChange(SignChangeEvent event) {
     	Block block = event.getBlock();
     	this.player = event.getPlayer();

@@ -10,8 +10,8 @@ import java.util.HashMap;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
@@ -33,10 +33,8 @@ public class XSigns extends JavaPlugin {
     public void onEnable() {
         // Register our events
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-        
+        pm.registerEvents(blockListener, this);
+
         //Get Description and set variables
         PluginDescriptionFile pdfFile = this.getDescription();
         this.name = pdfFile.getName();
@@ -163,11 +161,16 @@ public class XSigns extends JavaPlugin {
 				//Deserialize Sign
 				XSign sign = new JSONDeserializer<XSign>().deserialize(reader.readLine());
 				
-				if(sign.getEnvironment() != null)
-					world = getServer().createWorld(sign.getWorld(),World.Environment.valueOf(sign.getEnvironment()));
-				else
-					world = getServer().getWorld(sign.getWorld());
+				if(sign.getEnvironment() != null) {
+					WorldCreator creator = new WorldCreator(sign.getWorld());
+					creator.environment(World.Environment.valueOf(sign.getEnvironment()));
 					
+					world = creator.createWorld();
+				}
+				else {
+					world = getServer().getWorld(sign.getWorld());
+				}
+				
 				//get Block
 				if(world != null)
 				{
