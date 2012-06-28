@@ -3,7 +3,6 @@ package orangenpresse.xsigns;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -56,9 +55,9 @@ public class XSignsBlockListener implements Listener {
 			{
 				if(xsign.getStateLines()[i] != null)
 					sign.setLine(i, xsign.getStateLines()[i]);
-                
-                //update sign
-                sign.update();
+				
+					//update sign
+					sign.update();
 			}
     	}
     }
@@ -106,9 +105,10 @@ public class XSignsBlockListener implements Listener {
 		return replacedString;
     }
 
-	private String handleBigXSign(Block block, XSign sign, String line) throws XSignNotFoundException {
+	private String handleBigXSign(Block block, String line) throws XSignNotFoundException {
 		//Is there a half sign? 			
 		if(plugin.getXSign(block) != null) {
+			XSign sign;
 			//get the half sign
 			sign = plugin.getXSign(block);
 			
@@ -117,6 +117,8 @@ public class XSignsBlockListener implements Listener {
 				sign.setType(XSignType.BigXSign);
 			else if(line.matches("^\\|.*\\|$"))
 				sign.setType(XSignType.TriggerXSign);
+			else
+				throw new XSignNotFoundException();
 			
 			//replace the commandchars
 			String replacedString = line.replaceAll(">|\\|", "");
@@ -125,7 +127,6 @@ public class XSignsBlockListener implements Listener {
 			return replacedString;
 		}
 		else {
-			sign.setType(XSignType.Sign);
 			throw new XSignNotFoundException();
 		}
 	}
@@ -161,7 +162,8 @@ public class XSignsBlockListener implements Listener {
     		else if(lines[i].matches("^\\|.*>$") || lines[i].matches("^\\|.*\\|$")) {
 				try {
 					//save Lines
-					newLines[0][i] = this.handleBigXSign(block, sign, lines[i]);
+					newLines[0][i] = this.handleBigXSign(block, lines[i]);
+					sign = plugin.getXSign(block);
 				} catch (XSignNotFoundException e) {
 					this.player.sendMessage("No half XSign found");
 				}
@@ -176,7 +178,7 @@ public class XSignsBlockListener implements Listener {
     			newLines[0][i] = newLines[1][i] = lines[i];
     		}
     	}
-    	  	
+    	
        	//Save XSign
     	if(sign.getType() == XSignType.XSign) {
     		this.player.sendMessage("XSign created");
